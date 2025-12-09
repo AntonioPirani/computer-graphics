@@ -1,0 +1,49 @@
+// code taken by Shadertoy user saboofa at https://www.shadertoy.com/view/Ddsczf
+// modified by adding quantization
+float random (in vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
+}
+
+float noise (in vec2 st) {
+    vec2 i = floor(st);
+    vec2 f = fract(st);
+
+    vec2 u = f*f*(3.0-2.0*f);
+
+    return mix(mix(random(i + vec2(0.0,0.0)), 
+                   random(i + vec2(1.0,0.0)), u.x),
+               mix(random(i + vec2(0.0,1.0)), 
+                   random(i + vec2(1.0,1.0)), u.x), u.y);
+}
+
+// per ogni pixel!
+void mainImage(out vec4 fragColor, in vec2 fragCoord)
+{
+    vec2 st = fragCoord.xy / iResolution.xy;
+    vec3 color = vec3(0.0);
+    int numberOctaves = 3;
+
+    st *= 10.0;
+
+    float n = 0.0;
+    for (int i = 0; i < numberOctaves; i++) {
+        n += noise(st);
+        st *= 2.0;
+    }
+    
+    // to normalise the noise between 0 and 1 (cannot use clamp() cause clamp negates noise above 1)
+    n = n / float(numberOctaves);
+
+    // to quantise the noise into one specific layer
+    float layer = floor(n * 4.0);
+
+    // assign color to layer
+    float grey;
+    if (layer == 0.0) grey = 0.2;
+    else if (layer == 1.0) grey = 0.4;
+    else if (layer == 2.0) grey = 0.6;
+    else grey = 0.8;
+    color = vec3(grey);
+
+    fragColor = vec4(color, 1.0);
+}
