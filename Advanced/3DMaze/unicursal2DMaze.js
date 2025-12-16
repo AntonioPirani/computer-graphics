@@ -1,6 +1,4 @@
 // code taken from https://editor.p5js.org/dermotte/sketches/hO8rgiDs0, readapted for no animation
-
-// on babylon couldnt make it work
 let maze;
 let cell; // current cell
 let visited = 0; // terminate when all cells visited
@@ -11,11 +9,9 @@ let size_x = 12;
 let size_y = 9;
 blockSizeX = 40;
 blockSizeY = 40;
-let wallHeight = 40;
-let wallThickness = 4;
 
 function setup() {
-  createCanvas(640, 480, WEBGL);
+  createCanvas(640, 480);
   initMaze(size_x, size_y);
   cell = maze.get(0, 0);
   cell.visited = true;
@@ -25,49 +21,48 @@ function setup() {
   blockSizeY = height / size_y;
   while ((visited < size_x * size_y) && (--steps > 0))
     nextStep();
-  //noLoop();  //otherwise orbitControl doesnt work
+  noLoop();
 }
 
 function draw() {
   background(255);
   strokeWeight(6);
-  orbitControl();
-  translate(-size_x*blockSizeX/2, -size_y*blockSizeY/2, 0); // center maze
-
   for (let x = 0; x < size_x; x++) {
     for (let y = 0; y < size_y; y++) {
-      let c = maze.get(x, y);
-
-      if (c.hasWall("n") && (x != entry.x || y != entry.y)) {
-        push();
-        translate(x*blockSizeX + blockSizeX/2, y*blockSizeY, wallHeight/2);
-        box(blockSizeX, wallThickness, wallHeight);
-        pop();
+      if (maze.get(x, y).hasWall("n") && (x != entry.x || y != entry.y)) {
+        line(
+          x * blockSizeX,
+          y * blockSizeY,
+          (x + 1) * blockSizeX,
+          y * blockSizeY
+        );
       }
-
-      if (c.hasWall("w")) {
-        push();
-        translate(x*blockSizeX, y*blockSizeY + blockSizeY/2, wallHeight/2);
-        box(wallThickness, blockSizeY, wallHeight);
-        pop();
+      if (maze.get(x, y).hasWall("w")) {
+        line(
+          x * blockSizeX,
+          y * blockSizeY,
+          x * blockSizeX,
+          (y + 1) * blockSizeY
+        );
       }
-
-      if (y === size_y-1 && c.hasWall("s")) {
-        push();
-        translate(x*blockSizeX + blockSizeX/2, y*blockSizeY + blockSizeY, wallHeight/2);
-        box(blockSizeX, wallThickness, wallHeight);
-        pop();
+      if (maze.get(x, y).hasWall("e")) {
+        line(
+          (x + 1) * blockSizeX,
+          y * blockSizeY,
+          (x + 1) * blockSizeX,
+          (y + 1) * blockSizeY
+        );
       }
-
-      if (x === size_x-1 && c.hasWall("e")) {
-        push();
-        translate(x*blockSizeX + blockSizeX, y*blockSizeY + blockSizeY/2, wallHeight/2);
-        box(wallThickness, blockSizeY, wallHeight);
-        pop();
+      if (maze.get(x, y).hasWall("s")) {
+        line(
+          x * blockSizeX,
+          (y + 1) * blockSizeY,
+          (x + 1) * blockSizeX,
+          (y + 1) * blockSizeY
+        );
       }
     }
   }
-  /*
   if (visited < size_x * size_y && --steps > 0) {
     fill(0);
     circle(
@@ -77,7 +72,6 @@ function draw() {
     );
     //nextStep();
   } else {
-    
     
     // make finished maze unicursal ..
     for (let x = 0; x < size_x; x++) {
@@ -102,9 +96,7 @@ function draw() {
       entry.x * blockSizeX + blockSizeX / 2, 0,
       entry.x * blockSizeX + blockSizeX / 2, blockSizeY/2
     );
-    
   }
-  */
 }
 
 /**
